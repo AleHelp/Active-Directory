@@ -40,4 +40,7 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
     Enter-PSSession <numero sessione>
 
 
+  Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+
+
 
