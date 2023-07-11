@@ -30,13 +30,13 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
 ## Comandi:
 
     Start-Service winRM #viene avviato il servizio WinRM
-    <!-- spazio -->
+<!-- spazio -->
     Set-Item wsman:\localhost\Client\TrustedHosts -value <ip del server windows> #viene aggiunto l'indirizzo ip ai trustedhosts, stesso concetto delle 
     authorized_keys in ssh
-    <!-- spazio -->
+<!-- spazio -->
     New-PSSession -ComputerName <ip del server windows> -Credential (Get-Credential) #stiamo avviando una sessione del PSRemoting e inseriamo le crendenziali del 
     windows server
-    <!-- spazio -->
+<!-- spazio -->
     Enter-PSSession <numero sessione>
 
 
