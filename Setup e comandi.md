@@ -23,12 +23,12 @@ _Come una normale virtual machine montiamo le ISO, specifichiamo le caratteristi
 Nella windows server 2022 creiamo l'account Administrator con una semplice passwd="Passw0rd123" e lo stesso procedimento con l'altra macchina chiamando l'user localadmin
 e con una passwd tipo="Admin123"_
 
-# attivazione del PSRemoting
+# Attivazione del PSRemoting
 __Psremoting(Powershell remoting) è una funzionalità in powershell che permette di eseguire comandi Powershell da remoto, 
 sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il servizio.__
 
-### - Comandi:
-
+- ### Comandi:
+<!-- spazio -->
     Start-Service winRM #viene avviato il servizio WinRM
 <!-- spazio -->
     Set-Item wsman:\localhost\Client\TrustedHosts -value <ip del server windows> #viene aggiunto l'indirizzo ip ai trustedhosts, stesso concetto delle 
@@ -41,13 +41,22 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
 
 # Installazione AD-Domain e setting del DNS
 
-  ###
-
+-  ### AD-Domain:
+<!-- spazio -->
     Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
-
+<!-- spazio -->
     Import-Module ADDSDeployment
-
+<!-- spazio -->
     Install-ADDSForest
     
-
-
+- ### DNS settings:
+<!-- spazio -->
+    Get-NetIPAddress #comando powershell per ottenere configurazione di rete
+<!-- spazio -->
+    Get-DnsClientCache #recupero della cache del DNS locale
+<!-- spazio -->
+    Get-DnsClientServerAddress #recupero delle configurzione di rete del DNS 
+<!-- spazio -->
+    Set-DnsClientServerAddress -InterfaceIndex <num interfaccia> - ServerAddress <indirizzo ip>
+<!-- spazio -->
+  _Dopo aver installato l'active directory l'ip del DNS sarà settato al 127.0.0.1, andrà cambiato con quello dell'interfaccia di rete principale._
