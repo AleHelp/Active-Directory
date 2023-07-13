@@ -27,7 +27,7 @@ e con una passwd tipo="Admin123"_
 __Psremoting(Powershell remoting) è una funzionalità in powershell che permette di eseguire comandi Powershell da remoto, 
 sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il servizio.__
 
-## Comandi:
+### - Comandi:
 
     Start-Service winRM #viene avviato il servizio WinRM
 <!-- spazio -->
@@ -39,8 +39,15 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
 <!-- spazio -->
     Enter-PSSession <numero sessione>
 
+# Installazione AD-Domain e setting del DNS
 
-  Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+  ###
 
+    Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+
+    Import-Module ADDSDeployment
+
+    Install-ADDSForest
+    
 
 
