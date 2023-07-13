@@ -43,13 +43,13 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
 
 -  ### AD-Domain:
 <!-- spazio -->
-    Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+    Install-WindowsFeature AD-Domain-Services #IncludeManagementTools #comando per installare i servizi di AD-Domain
 <!-- spazio -->
-    Import-Module ADDSDeployment
+    Import-Module ADDSDeployment #Importato il modulo dell'AD con i vari comandi cmd 
 <!-- spazio -->
-    Install-ADDSForest
+    Install-ADDSForest #comando per installare e configurare una AD Forest
     
-- ### DNS settings:
+-  ### DNS settings:
 <!-- spazio -->
     Get-NetIPAddress #comando powershell per ottenere configurazione di rete
 <!-- spazio -->
