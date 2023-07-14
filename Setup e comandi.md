@@ -39,6 +39,10 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
 <!-- spazio -->
     Enter-PSSession <numero sessione>
 
+# Installazione chocolatey(packet manager windows)
+<!-- spazio -->
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex     ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+<!-- spazio -->
 # Installazione AD-Domain e setting del DNS
 
 -  ### AD-Domain:
