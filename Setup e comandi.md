@@ -64,3 +64,14 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
     Set-DnsClientServerAddress -InterfaceIndex <num interfaccia> - ServerAddress <indirizzo ip>
 <!-- spazio -->
   _Dopo aver installato l'active directory l'ip del DNS sarà settato al 127.0.0.1, andrà cambiato con quello dell'interfaccia di rete principale._
+<!-- spazio -->
+# Entrare Nell'AD
+<!-- spazio -->
+_Prima cosa settare il DNS interno con l'indirizzo del Domain Controller._
+<!-- spazio -->
+     Set-DnsClientServerAddress -InterfaceIndex <num interfaccia> - ServerAddress <indirizzo ip DC>
+<!-- spazio -->
+_Per entrare nell'AD cercare la voce __accedi all'azienda o all'istituto di istruzione__, cliccare connetti e poi selezionare la voce __aggiungi a dominio di Active Directory locale__. o eseguire il comando in powershell:_ 
+<!-- spazio -->
+    Add-Computer -DomainName xyz.com -Credential xyz\Administrator -Force -Restart #mettere credenziali ed accedere
+<!-- spazio -->
