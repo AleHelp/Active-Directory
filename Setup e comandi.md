@@ -38,10 +38,20 @@ sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il
     windows server
 <!-- spazio -->
     Enter-PSSession <numero sessione>
-
+_Per velocizzare il processo possiamo creare una variabile d'ambiente e allocarci la PS-Session:_
+<!-- spazio -->
+     $id = New-PSSession <ip del server> -Credential (Get-Credential)
+<!-- spazio -->
+     Enter-PSSession $id
+<!-- spazio -->
 # Installazione chocolatey(packet manager windows)
 <!-- spazio -->
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex     ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    #utilizzato come packet manager per installare git o vscode.
+<!-- spazio -->
+    Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1 #modulo per le variabili d'ambiente
+<!-- spazio -->
+    refreshenv  #Aggiorna le variabili d'ambiente
 <!-- spazio -->
 # Installazione AD-Domain e setting del DNS
 
@@ -73,5 +83,32 @@ _Prima cosa settare il DNS interno con l'indirizzo del Domain Controller._
 <!-- spazio -->
 _Per entrare nell'AD cercare la voce __accedi all'azienda o all'istituto di istruzione__, cliccare connetti e poi selezionare la voce __aggiungi a dominio di Active Directory locale__. o eseguire il comando in powershell:_ 
 <!-- spazio -->
-    Add-Computer -DomainName xyz.com -Credential xyz\Administrator -Force -Restart #mettere credenziali ed accedere
+    Add-Computer -DomainName <nome_dominio> -Credential <nome account a dominio> -Force -Restart #immettere credenziali ed accedere
 <!-- spazio -->
+# Configurazione user:
+<!-- spazio -->
+_La configurazione degli utenti avviene tramite un json file_
+<!-- spazio -->
+    {
+        "domain": "xyz.com",
+        "groups": [
+            {
+                "group_name": "Engineering"
+            }
+        ],
+        "users": [
+            {
+                "name": "John Hammond",
+                "password": "ilove123",
+                "groups": [
+                    "Engineering"
+                ]
+            }
+        ]
+    }
+<!-- spazio -->
+_Si continua poi con uno script in powershell dove verrà mandato in input il JSON file e da li verranno generati credenziali, nome,cognome,username ecc..._ 
+<!-- spazio -->
+    Set-ExecutionPolicy RemoteSigned #bisogna cambiare le policy per runnare gli script
+    
+    
