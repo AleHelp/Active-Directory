@@ -23,6 +23,17 @@ _Come una normale virtual machine montiamo le ISO, specifichiamo le caratteristi
 Nella windows server 2022 creiamo l'account Administrator con una semplice passwd="Passw0rd123" e lo stesso procedimento con l'altra macchina chiamando l'user localadmin
 e con una passwd tipo="Admin123"_
 
+# Comandi Powershell
+_Qua sono riportati comandi utilizzati da me per debugging e conoscenza personale._
+<!-- spazio -->
+    Remove-ADObject -Identity "CN=Bob ob,CN=Users,DC=xyz,DC=com" -Recursive -Confirm:$false #Elimina un gruppo nell'AD
+<!-- spazio -->
+    Remove-ADObject -Identity "CN=Alice lice,CN=Users,DC=xyz,DC=com" -Recursive -Confirm:$false #rimuove un utente dell'AD
+<!-- spazio -->
+    Get-ADGroup | fl #lista tutti i gruppi
+<!-- spazio -->
+    Get-ADUsers | fl #lista tutti gli utenti
+<!-- spazio -->
 # Attivazione del PSRemoting
 __Psremoting(Powershell remoting) è una funzionalità in powershell che permette di eseguire comandi Powershell da remoto, 
 sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il servizio.__
@@ -62,7 +73,7 @@ _Per velocizzare il processo possiamo creare una variabile d'ambiente e allocarc
     Import-Module ADDSDeployment #Importato il modulo dell'AD con i vari comandi cmd 
 <!-- spazio -->
     Install-ADDSForest #comando per installare e configurare una AD Forest
-    
+<!-- spazio -->    
 -  ### DNS settings:
 <!-- spazio -->
     Get-NetIPAddress #comando powershell per ottenere configurazione di rete
@@ -85,7 +96,7 @@ _Per entrare nell'AD cercare la voce __accedi all'azienda o all'istituto di istr
 <!-- spazio -->
     Add-Computer -DomainName <nome_dominio> -Credential <nome account a dominio> -Force -Restart #immettere credenziali ed accedere
 <!-- spazio -->
-# Configurazione user:
+# Configurazione user e gruppi:
 <!-- spazio -->
 _La configurazione degli utenti avviene tramite un json file_
 <!-- spazio -->
@@ -93,22 +104,81 @@ _La configurazione degli utenti avviene tramite un json file_
         "domain": "xyz.com",
         "groups": [
             {
-                "group_name": "Engineering"
+                "name": "Employees"
             }
         ],
         "users": [
             {
-                "name": "John Hammond",
-                "password": "ilove123",
+                "name": "Alice lice",
+                "password": "Anyth1ng1234",
                 "groups": [
-                    "Engineering"
+                    "Employees"
+                ]
+            },
+            {
+                "name": "Bob ob",
+                "password": "P@ssw0rdABC",
+                "groups": [
+                    "Employees"
                 ]
             }
         ]
     }
 <!-- spazio -->
-_Si continua poi con uno script in powershell dove verrà mandato in input il JSON file e da li verranno generati credenziali, nome,cognome,username ecc..._ 
+_Si continua poi con uno script in powershell dove verrà mandato in input il JSON file e da li verranno generati credenziali, nome,cognome,username,gruppo ecc..._ 
 <!-- spazio -->
     Set-ExecutionPolicy RemoteSigned #bisogna cambiare le policy per runnare gli script
+<!-- spazio -->
+_Script:_
+<!-- spazio -->
+    param([Parameter(Mandatory=$true)] $JSONfile)
     
+    function CreateADGroup(){
+        param([Parameter(Mandatory=$true)] $groupObject)
+    
+        $name = $groupObject.name
+        New-ADGroup -name $name -GroupScope Global
+    }
+    
+    function CreateADUser() {
+        param([Parameter(Mandatory=$true)] $userObject)
+    
+        #estrae i nomi dal json
+        $name = $userObject.name
+        $password = $userObject.password
+    
+        #generazione del cognome e username
+        $firstname , $lastname = $name.split(" ")
+        $username = ($firstname[0] + $lastname).ToLower()
+        $SamAccountName = $username
+        $principalname = $username
+    
+        #crea l'oggetto AD user
+        New-ADUser -Name "$name" -GivenName $firstname -Surname $lastname -SamAccountName $SamAccountName -UserPrincipalName $principalname@$Global:Domain -      
+        AccountPassword (ConvertTo-SecureString $password -AsPlainText -Force) -PassThru | Enable-ADAccount
+    
+        #aggiunge l'user al gruppo
+        foreach($group_name in $userObject.groups){
+            try{
+                Get-ADGroup -Identity "$group_name"
+                Add-ADGroupMember -Identity $group_name -Members $username
+            }
+            catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]
+            {
+                Write-Warning "User $name NOT added to group $group_name because it doesn't exists"
+            }
+        }
+    }
+    
+    $json = (Get-Content $JSONfile | ConvertFrom-JSON)
+    $Global:Domain = $json.domain
+    
+    foreach($group in $json.groups){
+        CreateADGroup $group
+    }
+    
+    
+    foreach($user in $json.users){
+        CreateADUser $user
+    }
     
