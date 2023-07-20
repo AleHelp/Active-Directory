@@ -251,14 +251,14 @@ __N.B: Creare 4 .txt file contenenti Nomi,Cognomi,Gruppi e Password saranno util
         "users" = $users
     } | ConvertTo-Json | Out-File $OutputJSONFile
 <!-- spazio -->
-_Ultima configurazione, con il JSON creato sopra, lo passiamo allo script sottostante che si occuperà di creare i: gruppi,user e relative password._
+_Ultima configurazione, con il JSON creato sopra, lo passiamo allo script sottostante che si occuperà di creare i gruppi,user e relative password._
 <!-- spazio -->
 ES per avviare lo script:
 <!-- spazio -->
-    .\gen_ad.ps1   \out.json  $undo #se viene inserito il  parametro $Undo invece di creare gli utenti verranno eliminati
+    .\gen_ad.ps1   \out.json  $undo #se viene inserito il parametro $Undo invece di creare gli utenti verranno eliminati
 <!-- spazio -->
     param(
-        [Parameter(Mandatory=$true)] $JSONfile,#viene passato in input il JSON file avente i vari utentiu, gruppi e password
+        [Parameter(Mandatory=$true)] $JSONfile,#viene passato in input il JSON file avente i vari utenti, gruppi e password
         [switch]$Undo#undo utilizzato per elimiare user e gruppi
     )
     
@@ -363,7 +363,7 @@ ES per avviare lo script:
             }
         }
 <!-- spazio -->
-_Una volta salvati gli script tramite PSRemoting andrà passato al Windows server core 2022(Domain Controller) il JSON creato con lo script e lo script che crea utenti,gruppi e password con il JSON generato._
+_Una volta salvati gli script, andranno tramite PSRemoting passati al Windows server core 2022(Domain Controller) il JSON creato con lo script e lo script che crea utenti,gruppi e password con il JSON generato._
 <!-- spazio -->
 # Utilizzo di CrackMapexec
 _tool utilizzato nel mondo del pentesting per il crack di credenziali su diversi protocolli(SSH,FTP,LDAP,SMB)_
