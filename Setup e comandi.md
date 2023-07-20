@@ -32,6 +32,7 @@ ___FARE DEGLI SNAPSHOT DELLE VM OGNI TANTO___
 _Come una normale virtual machine montiamo le ISO, specifichiamo le caratteristiche hardware e le avviamo, al primo boot seguiamo passo passo l'installazione.
 Nella windows server 2022 creiamo l'account Administrator con una semplice passwd="Passw0rd123" e lo stesso procedimento con l'altra macchina chiamando l'user localadmin
 e con una passwd tipo="Admin123"_
+
 __N.B Nella VM avente Windows 10 enterprise selezionamo di montare dopo il sistema operativo, infatti dopo aver installato tutto andando in setting->cd/dvd(sata) specifichiamo la ISO da montare,riavviamo la VM e montiamo il tutto.__
  
 # Comandi Powershell
