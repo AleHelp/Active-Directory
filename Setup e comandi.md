@@ -30,7 +30,8 @@ Config. tecniche:
 _Come una normale virtual machine montiamo le ISO, specifichiamo le caratteristiche hardware e le avviamo, al primo boot seguiamo passo passo l'installazione.
 Nella windows server 2022 creiamo l'account Administrator con una semplice passwd="Passw0rd123" e lo stesso procedimento con l'altra macchina chiamando l'user localadmin
 e con una passwd tipo="Admin123"_
-
+__N.B Nella VM avente Windows 10 enterprise selezionamo di montare dopo il sistema operativo, infatti dopo aver installato tutto andando in setting->cd/dvd(sata) specifichiamo la ISO da montare,riavviamo la VM e montiamo il tutto.__
+ 
 # Comandi Powershell
 _Qua sono riportati comandi utilizzati da me per debugging e conoscenza personale._
 <!-- spazio -->
@@ -44,11 +45,14 @@ _Qua sono riportati comandi utilizzati da me per debugging e conoscenza personal
 <!-- spazio -->
     net user /domain o net group /domain #comandi terminale per ricavare informazioni su gruppi o utenti del domain.
 <!-- spazio -->
+    Get-DnsClientCache #recupero della cache del DNS locale
+<!-- spazio -->
 # Attivazione del PSRemoting
 __Psremoting(Powershell remoting) è una funzionalità in powershell che permette di eseguire comandi Powershell da remoto, 
 sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il servizio.__
 
 - ### Comandi:
+_(sulla windows 10 enterprise)_
 <!-- spazio -->
     Start-Service winRM #viene avviato il servizio WinRM
 <!-- spazio -->
@@ -75,7 +79,7 @@ _Per velocizzare il processo possiamo creare una variabile d'ambiente e allocarc
     refreshenv  #Aggiorna le variabili d'ambiente
 <!-- spazio -->
 # Installazione AD-Domain e setting del DNS
-
+<!-- spazio -->
 -  ### AD-Domain:
 <!-- spazio -->
     Install-WindowsFeature AD-Domain-Services #IncludeManagementTools #comando per installare i servizi di AD-Domain
@@ -85,26 +89,23 @@ _Per velocizzare il processo possiamo creare una variabile d'ambiente e allocarc
     Install-ADDSForest #comando per installare e configurare una AD Forest
 <!-- spazio -->    
 -  ### DNS settings:
+ _Dopo aver installato l'active directory l'ip del DNS sarà settato al 127.0.0.1, andrà cambiato con quello dell'interfaccia di rete principale, cioè con l'ip del domain controller stesso_
 <!-- spazio -->
     Get-NetIPAddress #comando powershell per ottenere configurazione di rete
-<!-- spazio -->
-    Get-DnsClientCache #recupero della cache del DNS locale
 <!-- spazio -->
     Get-DnsClientServerAddress #recupero delle configurzione di rete del DNS 
 <!-- spazio -->
     Set-DnsClientServerAddress -InterfaceIndex <num interfaccia> - ServerAddress <indirizzo ip>
 <!-- spazio -->
-  _Dopo aver installato l'active directory l'ip del DNS sarà settato al 127.0.0.1, andrà cambiato con quello dell'interfaccia di rete principale._
-<!-- spazio -->
 # Entrare Nell'AD
 <!-- spazio -->
-_Prima cosa settare il DNS interno con l'indirizzo del Domain Controller._
+_Nella win 10 Enterprise prima cosa da settare è il DNS interno con l'indirizzo del Domain Controller._
 <!-- spazio -->
      Set-DnsClientServerAddress -InterfaceIndex <num interfaccia> - ServerAddress <indirizzo ip DC>
 <!-- spazio -->
 _Per entrare nell'AD cercare la voce __accedi all'azienda o all'istituto di istruzione__, cliccare connetti e poi selezionare la voce __aggiungi a dominio di Active Directory locale__. o eseguire il comando in powershell:_ 
 <!-- spazio -->
-    Add-Computer -DomainName <nome_dominio> -Credential <nome account a dominio> -Force -Restart #immettere credenziali ed accedere
+    Add-Computer -DomainName <nome_dominio> -Credential <nome account all'interno del domain controllwe> -Force -Restart #immettere credenziali ed accedere
 <!-- spazio -->
 # Configurazione user e gruppi:
 <!-- spazio -->
@@ -136,7 +137,7 @@ _La configurazione degli utenti avviene tramite un json file_
         ]
     }
 <!-- spazio -->
-_Si continua poi con uno script in powershell dove verrà mandato in input il JSON file e da li verranno generati credenziali, nome,cognome,username,gruppo ecc..._ 
+_Si continua poi con uno script in powershell dove verrà mandato in input il JSON file e da li verranno generati credenziali, nome,cognome,username,gruppo ecc... in maniera quasi automatica_ 
 <!-- spazio -->
     Set-ExecutionPolicy RemoteSigned #bisogna cambiare le policy per runnare gli script
 <!-- spazio -->
@@ -193,17 +194,17 @@ _Script:_
         CreateADUser $user
     }
  <!-- spazio -->
-_Seconda configurazione più articolata, che permette un'ulteriore automazione, cioè generare il json degli utenti senza farlo a mano._
-__N.B: Creare 4 .txt file contenenti Nomi,Cognomi,Gruppi e Password saranno utilizzati dal seguente script.__
+_Seconda configurazione più articolata, che permette un'ulteriore automazione, cioè generare il JSON degli utenti senza farlo a mano._
+__N.B: Creare 4 .txt file contenenti Nomi,Cognomi,Gruppi e Password saranno utilizzati dal seguente script per creare il json.__
 <!-- spazio -->
     #prende un json file in input dove verrannò messi gli user creati
     param([Parameter(Mandatory=$true)] $OutputJSONFile)
     
     #preso il contenuto dai vari file e converitti in array
-    $group_names = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\group_names.txt")
-    $first_names = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\first_names.txt")
-    $last_names = [System.Collections.ArrayList](Get-Content   "C:\Users\localadmin\Desktop\Data\last_names.txt")
-    $passwords = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\passwords.txt")
+    $group_names = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\group_names.txt") #DA CAMBIARE
+    $first_names = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\first_names.txt")  #DA CAMBIARE
+    $last_names = [System.Collections.ArrayList](Get-Content   "C:\Users\localadmin\Desktop\Data\last_names.txt")  #DA CAMBIARE
+    $passwords = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\passwords.txt")  #DA CAMBIARE
     
     #creazione lista gruppi e nomi
     $groups = @()
@@ -245,7 +246,11 @@ __N.B: Creare 4 .txt file contenenti Nomi,Cognomi,Gruppi e Password saranno util
         "users" = $users
     } | ConvertTo-Json | Out-File $OutputJSONFile
 <!-- spazio -->
-_Ultima configurazione, dato lo stesso json permette l'eliminazione degli utenti e gruppi tramite lo switch $undo._
+_Ultima configurazione, con il JSON creato sopra, lo passiamo allo script sottostante che si occuperà di creare i: gruppi,user e relative password._
+<!-- spazio -->
+ES per avviare lo script:
+<!-- spazio -->
+    .\gen_ad.ps1   \out.json  $undo #se viene inserito il  parametro $Undo invece di creare gli utenti verranno eliminati
 <!-- spazio -->
     param(
         [Parameter(Mandatory=$true)] $JSONfile,#viene passato in input il JSON file avente i vari utentiu, gruppi e password
@@ -283,7 +288,7 @@ _Ultima configurazione, dato lo stesso json permette l'eliminazione degli utenti
         $principalname = $username
     
         #crea l'oggetto AD user
-        New-ADUser -Name "$name" -GivenName $firstname -Surname $lastname -SamAccountName $SamAccountName -UserPrincipalName $principalname@$Global:Domain -AccountPassword (ConvertTo-SecureString $password -AsPlainText -Force) -PassThru | Enable-ADAccount
+        New-ADUser -Name "$name" -GivenName $firstname -Surname $lastname -SamAccountName $SamAccountName -UserPrincipalName $principalname@$Global:Domain -AccountPassword (ConvertTo-SecureString $password -AsPlainText Force) -PassThru | Enable-ADAccount #questo comando deve essere tutto su una linea per il corretto funzionamento
     
         #aggiunge l'user al gruppo
         foreach($group_name in $userObject.groups){
