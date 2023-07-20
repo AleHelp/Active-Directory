@@ -77,7 +77,9 @@ _(sulla windows 10 enterprise)_
 <!-- spazio -->
     Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1 #modulo per le variabili d'ambiente
 <!-- spazio -->
-    refreshenv  #Aggiorna le variabili d'ambiente
+    choco install vscode #comando per installare un edito in questo caso visual studio code
+<!-- spazio -->
+    refreshenv  #Da utilizzare dopo aver installato un programma con choco
 <!-- spazio -->
 # Installazione AD-Domain e setting del DNS
 _(sulla windows server core 2022 aka Domain Controller)_
