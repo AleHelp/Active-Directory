@@ -291,7 +291,7 @@ ES per avviare lo script:
         $principalname = $username
     
         #crea l'oggetto AD user
-        New-ADUser -Name "$name" -GivenName $firstname -Surname $lastname -SamAccountName $SamAccountName -UserPrincipalName $principalname@$Global:Domain -AccountPassword (ConvertTo-SecureString $password -AsPlainText Force) -PassThru | Enable-ADAccount #questo comando deve essere tutto su una linea per il corretto funzionamento
+        New-ADUser -Name "$name" -GivenName $firstname -Surname $lastname -SamAccountName $SamAccountName -UserPrincipalName $principalname@$Global:Domain -AccountPassword (ConvertTo-SecureString $password -AsPlainText -Force) -PassThru | Enable-ADAccount #questo comando deve essere tutto su una linea per il corretto funzionamento
     
         #aggiunge l'user al gruppo
         foreach($group_name in $userObject.groups){
