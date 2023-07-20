@@ -18,6 +18,14 @@ Config. tecniche:
   - 70gb di storage
   - VMware tools installati
 
+[Virtual machine con kali linux](https://www.kali.org/get-kali/#kali-installer-images)
+<!-- spazio -->
+Config. tecniche:
+  - 5 Gb ram
+  - 4 processori
+  - 40gb di storage
+  - VMware tools installati
+
 # Procedimenti per l'installazione
 _Come una normale virtual machine montiamo le ISO, specifichiamo le caratteristiche hardware e le avviamo, al primo boot seguiamo passo passo l'installazione.
 Nella windows server 2022 creiamo l'account Administrator con una semplice passwd="Passw0rd123" e lo stesso procedimento con l'altra macchina chiamando l'user localadmin
@@ -33,6 +41,8 @@ _Qua sono riportati comandi utilizzati da me per debugging e conoscenza personal
     Get-ADGroup | fl #lista tutti i gruppi
 <!-- spazio -->
     Get-ADUsers | fl #lista tutti gli utenti
+<!-- spazio -->
+    net user /domain o net group /domain #comandi terminale per ricavare informazioni su gruppi o utenti del domain.
 <!-- spazio -->
 # Attivazione del PSRemoting
 __Psremoting(Powershell remoting) è una funzionalità in powershell che permette di eseguire comandi Powershell da remoto, 
@@ -98,6 +108,7 @@ _Per entrare nell'AD cercare la voce __accedi all'azienda o all'istituto di istr
 <!-- spazio -->
 # Configurazione user e gruppi:
 <!-- spazio -->
+__Durante la serie la creazione degli utenti, gruppi evolve in steps, quindi verrannò messi tutti i codici step by step.
 _La configurazione degli utenti avviene tramite un json file_
 <!-- spazio -->
     {
@@ -181,4 +192,192 @@ _Script:_
     foreach($user in $json.users){
         CreateADUser $user
     }
+ <!-- spazio -->
+_Seconda configurazione più articolata, che permette un'ulteriore automazione, cioè generare il json degli utenti senza farlo a mano._
+__N.B: Creare 4 .txt file contenenti Nomi,Cognomi,Gruppi e Password saranno utilizzati dal seguente script.__
+<!-- spazio -->
+    #prende un json file in input dove verrannò messi gli user creati
+    param([Parameter(Mandatory=$true)] $OutputJSONFile)
     
+    #preso il contenuto dai vari file e converitti in array
+    $group_names = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\group_names.txt")
+    $first_names = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\first_names.txt")
+    $last_names = [System.Collections.ArrayList](Get-Content   "C:\Users\localadmin\Desktop\Data\last_names.txt")
+    $passwords = [System.Collections.ArrayList](Get-Content  "C:\Users\localadmin\Desktop\Data\passwords.txt")
+    
+    #creazione lista gruppi e nomi
+    $groups = @()
+    $users = @()
+    $num_groups = 10
+    #creazione hashtable contenenti i gruppi
+    for ($i = 0; $i -lt $num_groups; $i++){
+        $new_group = (Get-Random  -InputObject $group_names)
+        $group = @{"name" = "$new_group"}
+        $groups += $group
+        $group_names.Remove($new_group)
+    
+    }
+    
+    $users = @()
+    $num_users = 10
+
+    #creazione hashtable dei nomi
+    for ($i = 0; $i -lt $num_users; $i++){
+        $first_name = (Get-Random  -InputObject $first_names)
+        $last_name = (Get-Random  -InputObject $last_names)
+        $password = (Get-Random  -InputObject $passwords)
+    
+        $new_user = @{
+            "name"="$first_name $last_name"
+            "password"="$password" 
+            "group" = @( (Get-Random -InputObject $groups).name )
+        }
+        $users += $new_user
+        $first_names.Remove($first_name)
+        $last_names.Remove($last_name)
+        $passwords.Remove($password)
+    }
+
+    #hashtable finale per dominio gruppi e utenti
+    @{
+        "domain" = "xyz.com"
+        "groups" = $groups
+        "users" = $users
+    } | ConvertTo-Json | Out-File $OutputJSONFile
+<!-- spazio -->
+_Ultima configurazione, dato lo stesso json permette l'eliminazione degli utenti e gruppi tramite lo switch $undo._
+<!-- spazio -->
+    param(
+        [Parameter(Mandatory=$true)] $JSONfile,#viene passato in input il JSON file avente i vari utentiu, gruppi e password
+        [switch]$Undo#undo utilizzato per elimiare user e gruppi
+    )
+    
+    #crea un ADGroup con scopo Global
+    function CreateADGroup(){
+        param([Parameter(Mandatory=$true)] $groupObject)
+    
+        $name = $groupObject.name
+        New-ADGroup -name $name -GroupScope Global
+    }
+    
+    #funzione per rimuove ADGroup
+    function RemoveADGroup(){
+        param( [Parameter(Mandatory=$true)] $groupObject )
+    
+        $name = $groupObject.name
+        Remove-ADGroup -Identity $name -Confirm:$False
+    }
+    
+    #Crea un ADUser con scopi globali
+    function CreateADUser() {
+        param([Parameter(Mandatory=$true)] $userObject)
+    
+        #estrae i nomi dal json
+        $name = $userObject.name
+        $password = $userObject.password
+        
+        #generazione del cognome e username
+        $firstname , $lastname = $name.split(" ")
+        $username = ($firstname[0] + $lastname).ToLower()
+        $SamAccountName = $username
+        $principalname = $username
+    
+        #crea l'oggetto AD user
+        New-ADUser -Name "$name" -GivenName $firstname -Surname $lastname -SamAccountName $SamAccountName -UserPrincipalName $principalname@$Global:Domain -AccountPassword (ConvertTo-SecureString $password -AsPlainText -Force) -PassThru | Enable-ADAccount
+    
+        #aggiunge l'user al gruppo
+        foreach($group_name in $userObject.groups){
+            try{
+                Get-ADGroup -Identity "$group_name"
+                Add-ADGroupMember -Identity $group_name -Members $username
+            }
+            catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]
+            {
+                Write-Warning "User $name NOT added to group $group_name because it doesn't exists"
+            }       
+        }
+    }
+    
+    #funzione per eliminare gli utenti
+    function RemoveADUser(){
+        param( [Parameter(Mandatory=$true)] $userObject )
+    
+        $name = $userObject.name
+        $firstname, $lastname = $name.Split(" ")
+        $username = ($firstname[0] + $lastname).ToLower()
+        $samAccountName = $username
+        Remove-ADUser -Identity $samAccountName -Confirm:$False
+    }
+    
+    #funzione per eliminare le restrizioni della password
+    function WeakenPasswordPolicy(){
+        secedit /export /cfg C:\Windows\Tasks\secpol.cfg
+        (Get-Content C:\Windows\Tasks\secpol.cfg).replace("PasswordComplexity = 1", "PasswordComplexity = 0").replace("MinimumPasswordLength = 7", "MinimumPasswordLength = 1") | Out-File C:\Windows\Tasks\secpol.cfg
+        secedit /configure /db c:\windows\security\local.sdb /cfg C:\Windows\Tasks\secpol.cfg /areas SECURITYPOLICY
+        rm -force C:\Windows\Tasks\secpol.cfg -confirm:$False
+    }
+    
+    #funzione che rafforza i criteri di sicurezza della password
+    function StrenghtenPasswordPolicy(){
+        secedit /export /cfg C:\Windows\Tasks\secpol.cfg
+        (Get-Content C:\Windows\Tasks\secpol.cfg).replace("PasswordComplexity = 1", "PasswordComplexity = 0").replace("MinimumPasswordLength = 1", "MinimumPasswordLength = 7") | Out-File C:\Windows\Tasks\secpol.cfg
+        secedit /configure /db c:\windows\security\local.sdb /cfg C:\Windows\Tasks\secpol.cfg /areas SECURITYPOLICY
+        rm -force C:\Windows\Tasks\secpol.cfg -confirm:$False
+    }
+    
+    $json = (Get-Content $JSONfile | ConvertFrom-JSON) 
+    $Global:Domain = $json.domain
+    
+    #se viene zelezionato undo, gli user e gruppi nel json saranno eliminati senno' no
+    if ( -not $undo){
+                
+        WeakenPasswordPolicy
+    
+        foreach($group in $json.groups){
+            CreateADGroup $group
+        }
+    
+        foreach($user in $json.users){
+                CreateADUser $user
+            }
+    }else{
+    
+        StrenghtenPasswordPolicy
+    
+        foreach($user in $json.users){
+                RemoveADUser $user
+            }
+    
+        foreach($group in $json.groups){
+                RemoveADGroup $group
+            }
+        }
+<!-- spazio -->
+# Utilizzo di CrackMapexec
+_tool utilizzato nel mondo del pentesting per il crack di credenziali su diversi protocolli(SSH,FTP,LDAP,SMB)_
+_Passi generali:_ 
+<!-- spazio -->
+- Creazione di una wordlist di utenti
+<!-- spazio -->
+- Creazione delle prime 1000 password di RockYou.txt
+<!-- spazio -->
+      gunzip /usr/share/wordlists/rockyou.txt.gz
+<!-- spazio -->
+      head -n 1000 /usr/share/wordlists/rockyou.txt > passwords.txt
+- utilizzo di crackmapexec con diversi comandi:
+<!-- spazio -->
+      crackmapexec <protocollo> <target> -u <wordlist utenti> -p <wordlist password>
+<!-- spazio -->
+      crackmapexec <protocollo> <target> -u <wordlist utenti> -p <wordlist password> -groups #enumerazione dei gruppi
+<!-- spazio -->
+      crackmapexec <protocollo> <target> -u <wordlist utenti> -p <wordlist password> -users #enumerazione utenti
+  <!-- spazio -->
+  __I comandi sono molteplici è bene visionare l'help per saperne di più.__
+<!-- spazio -->
+
+
+
+
+
+
+
