@@ -61,15 +61,13 @@ _(sulla windows 10 enterprise)_
     Set-Item wsman:\localhost\Client\TrustedHosts -value <ip del server windows> #viene aggiunto l'indirizzo ip ai trustedhosts, stesso concetto delle 
     authorized_keys in ssh
 <!-- spazio -->
-    New-PSSession -ComputerName <ip del server windows> -Credential (Get-Credential) #stiamo avviando una sessione del PSRemoting e inseriamo le crendenziali del 
-    windows server
+    $creds = (Get-Creds) # salviamo le credenziali del domain controller in una variabile 
 <!-- spazio -->
-    Enter-PSSession <numero sessione>
-_Per velocizzare il processo possiamo creare una variabile d'ambiente e allocarci la PS-Session:_
+     $id = New-PSSession <ip del server> -Credential $creds #salviamo tutto il comando in una variabile
 <!-- spazio -->
-     $id = New-PSSession <ip del server> -Credential (Get-Credential)
+     Enter-PSSession $id #comando per entrare nella sessione
 <!-- spazio -->
-     Enter-PSSession $id
+      Copy-Item <Path del file da copiare> -ToSession <variabile d'ambiente che contienere il comando New-PSSession> <Destinaziona all'interno del DC dove copiare il file>
 <!-- spazio -->
 # Installazione chocolatey(packet manager windows)
 <!-- spazio -->
@@ -360,6 +358,8 @@ ES per avviare lo script:
                 RemoveADGroup $group
             }
         }
+<!-- spazio -->
+_Una volta salvati gli script tramite PSRemoting andrà passato al Windows server core 2022(Domain Controller) il JSON creato con lo script e lo script che crea utenti,gruppi e password con il JSON generato._
 <!-- spazio -->
 # Utilizzo di CrackMapexec
 _tool utilizzato nel mondo del pentesting per il crack di credenziali su diversi protocolli(SSH,FTP,LDAP,SMB)_
