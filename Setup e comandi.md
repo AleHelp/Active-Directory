@@ -26,6 +26,8 @@ Config. tecniche:
   - 40gb di storage
   - VMware tools installati
 
+___FARE DEGLI SNAPSHOT DELLE VM OGNI TANTO___
+
 # Procedimenti per l'installazione
 _Come una normale virtual machine montiamo le ISO, specifichiamo le caratteristiche hardware e le avviamo, al primo boot seguiamo passo passo l'installazione.
 Nella windows server 2022 creiamo l'account Administrator con una semplice passwd="Passw0rd123" e lo stesso procedimento con l'altra macchina chiamando l'user localadmin
