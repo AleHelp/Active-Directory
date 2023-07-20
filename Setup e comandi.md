@@ -199,6 +199,7 @@ _Script:_
     }
  <!-- spazio -->
 _Seconda configurazione più articolata, che permette un'ulteriore automazione, cioè generare il JSON degli utenti senza farlo a mano._
+<!-- spazio -->
 __N.B: Creare 4 .txt file contenenti Nomi,Cognomi,Gruppi e Password saranno utilizzati dal seguente script per creare il json.__
 <!-- spazio -->
     #prende un json file in input dove verrannò messi gli user creati
