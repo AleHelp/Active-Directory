@@ -79,6 +79,7 @@ _Per velocizzare il processo possiamo creare una variabile d'ambiente e allocarc
     refreshenv  #Aggiorna le variabili d'ambiente
 <!-- spazio -->
 # Installazione AD-Domain e setting del DNS
+_(sulla windows server core 2022 aka Domain Controller)_
 <!-- spazio -->
 -  ### AD-Domain:
 <!-- spazio -->
