@@ -14,6 +14,8 @@
 
 [Configurazione user e gruppi](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#configurazione-user-e-gruppi)
 
+[Utilizzo di CrackMapExec](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#utilizzo-di-crackmapexec)
+
 # Setup:
 
 [VMware workstation 17](https://www.vmware.com/go/getworkstation-win)
