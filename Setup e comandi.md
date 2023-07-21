@@ -1,3 +1,19 @@
+# Links:
+
+[Setup](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#setup)
+
+[Comandi powershell](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#comandi-powershell)
+
+[Attivazione PSRemoting](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#attivazione-del-psremoting)
+
+[Installazione chocolatey](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#installazione-chocolateypacket-manager-windows)
+
+[Installazione AD-Domain e setting del DNS](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#installazione-ad-domain-e-setting-del-dns)
+
+[Entrare nell'AD](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#entrare-nellad)
+
+[Configurazione user e gruppi](https://github.com/AleHelp/Active-Directory/blob/main/Setup%20e%20comandi.md#configurazione-user-e-gruppi)
+
 # Setup:
 
 [VMware workstation 17](https://www.vmware.com/go/getworkstation-win)
