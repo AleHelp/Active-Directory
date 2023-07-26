@@ -69,6 +69,11 @@ _Qua sono riportati comandi utilizzati da me per debugging e conoscenza personal
     Get-DnsClientCache #recupero della cache del DNS locale
 <!-- spazio -->
      Install-WindowsFeature –Name AD-Certificate,ADCS-Cert-Authority -Restart
+<!-- spazio -->
+     Get-ADComputer <nome computer> #comando per prendere info sui gruppi di computer nell'AD
+<!-- spazio -->   
+     Get-ADComputer <nome computer #comando per settare le info dei gruppi nell'AD
+<!-- spazio -->
 # Attivazione del PSRemoting
 __Psremoting(Powershell remoting) è una funzionalità in powershell che permette di eseguire comandi Powershell da remoto, 
 sfrutta il WinRM (Uguale all RDP ma più sicuro), per utilizzarlo va startato il servizio.__
