@@ -86,7 +86,7 @@ _(sulla windows 10 enterprise)_
     Set-Item wsman:\localhost\Client\TrustedHosts -value <ip del server windows> #viene aggiunto l'indirizzo ip ai trustedhosts, stesso concetto delle 
     authorized_keys in ssh
 <!-- spazio -->
-    $creds = (Get-Creds) # salviamo le credenziali del domain controller in una variabile 
+    $creds = (Get-Credential) # salviamo le credenziali del domain controller in una variabile 
 <!-- spazio -->
      $id = New-PSSession <ip del server> -Credential $creds #salviamo tutto il comando in una variabile
 <!-- spazio -->
